@@ -82,7 +82,7 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
           <span className="skeleton inline-block w-10 h-3 flex-shrink-0" />
         ) : providerMeta?.showBalance === false ? (
           <span className={`text-[9px] font-semibold flex-shrink-0 ${isAvailable ? 'text-emerald-500' : 'text-red-500'}`}>
-            {isAvailable ? 'Active' : 'Inactive'}
+            {isAvailable ? '可用' : '不可用'}
           </span>
         ) : (
           <span className="text-[10px] font-bold tracking-tight flex-shrink-0" style={{ color: `rgb(var(--accent))` }}>
@@ -103,7 +103,7 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
         <button
           onClick={(e) => { e.stopPropagation(); window.electronAPI?.openExternal(providerMeta.accountUrl) }}
           className="flex-shrink-0 p-1 rounded border border-[rgb(var(--border-subtle)/0.1)] text-[rgb(var(--text-tertiary))] opacity-0 group-hover:opacity-100 hover:border-[rgb(var(--accent)/0.4)] hover:text-[rgb(var(--accent))] transition-all"
-          title={`${providerMeta.name} Platform`}
+          title={`前往 ${providerMeta.name} 平台`}
         >
           <ExternalLink className="w-2.5 h-2.5" />
         </button>
@@ -116,7 +116,7 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
               ? 'border-[rgb(var(--accent)/0.4)] bg-[rgb(var(--accent)/0.1)] text-[rgb(var(--accent))] opacity-100'
               : 'border-[rgb(var(--border-subtle)/0.1)] text-[rgb(var(--text-tertiary))] opacity-0 group-hover:opacity-100 hover:border-[rgb(var(--accent)/0.3)] hover:text-[rgb(var(--accent))]'
           }`}
-          title={isPinned ? 'Unpin' : 'Pin'}
+          title={isPinned ? '取消置顶' : '置顶'}
         >
           <Pin className={`w-2.5 h-2.5 ${isPinned ? 'fill-current' : ''}`} />
         </button>
@@ -153,7 +153,7 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
           <div
             className={`flex items-center justify-center cursor-grab active:cursor-grabbing shadow-sm ${isCompact ? 'w-6 h-6 rounded-lg' : 'w-8 h-8 rounded-xl'}`}
             style={{ backgroundColor: `rgb(var(--accent))` }}
-            title="Drag to reorder"
+            title="拖拽排序"
           >
             <GripVertical className={`${isCompact ? 'w-3 h-3' : 'w-4 h-4'} text-white`} />
           </div>
@@ -167,7 +167,7 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
               </span>
             </div>
             <div className="text-xs font-medium text-[rgb(var(--text-secondary))]">
-              {accountCount > 1 && accountLabel ? `${accountLabel} · ` : ''}{info.currency} Balance
+              {accountCount > 1 && accountLabel ? `${accountLabel} · ` : ''}{info.currency} 余额
             </div>
             <div className="flex items-center gap-1.5">
               {errorMessage ? (
@@ -179,7 +179,7 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
                 <>
                   <Circle className={`w-1.5 h-1.5 fill-current ${healthColor}`} />
                   <span className={`text-[10px] ${isAvailable ? 'text-emerald-500' : 'text-red-500'}`}>
-                    {isAvailable ? 'Active' : 'Inactive'}
+                    {isAvailable ? '可用' : '不可用'}
                   </span>
                 </>
               )}
@@ -196,7 +196,7 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
           ) : (
             <>
               <span className={`text-lg font-bold ${isAvailable ? 'text-emerald-500' : 'text-red-500'}`}>
-                {isAvailable ? 'Active' : 'Inactive'}
+                {isAvailable ? '可用' : '不可用'}
               </span>
               {providerMeta?.balanceNote && (
                 <span className="text-[10px] text-[rgb(var(--text-tertiary))] mt-1 text-center">
@@ -211,7 +211,7 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
           {/* Total balance */}
           <div className={`relative ${isCompact ? 'mb-2.5' : 'mb-3'}`}>
             <div className="text-[10px] uppercase tracking-wider text-[rgb(var(--text-tertiary))] mb-1">
-              Total Balance
+              总余额
             </div>
             <div
               className={`font-bold tracking-tight ${isCompact ? 'text-2xl' : 'text-3xl'}`}
@@ -227,15 +227,15 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
 
           {/* Sub-balances */}
           <div className="relative grid grid-cols-2 gap-2.5">
-            <DetailItem icon={<Gift className="w-3 h-3" />} label="Granted" value={granted} symbol={symbol} loading={loading} compact={isCompact} />
-            <DetailItem icon={<CreditCard className="w-3 h-3" />} label="Topped Up" value={toppedUp} symbol={symbol} loading={loading} compact={isCompact} />
+            <DetailItem icon={<Gift className="w-3 h-3" />} label="赠金" value={granted} symbol={symbol} loading={loading} compact={isCompact} />
+            <DetailItem icon={<CreditCard className="w-3 h-3" />} label="充值" value={toppedUp} symbol={symbol} loading={loading} compact={isCompact} />
           </div>
 
           {/* Progress bar */}
           {!isCompact && toppedUp + granted > 0 && (
             <div className="relative mt-3">
               <div className="flex justify-between text-[10px] text-[rgb(var(--text-tertiary))] mb-1.5">
-                <span>Granted Ratio</span>
+                <span>赠金占比</span>
                 <span>{((granted / (granted + toppedUp)) * 100).toFixed(0)}%</span>
               </div>
               <div className="progress-track">
@@ -251,16 +251,16 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
 
       {/* Footer actions */}
       <div className="relative mt-3 pt-2 border-t border-[rgb(var(--border-subtle)/0.06)] flex items-center justify-center gap-2">
-        <span className="text-[9px] text-[rgb(var(--text-tertiary))] select-none">Drag handle to reorder</span>
+        <span className="text-[9px] text-[rgb(var(--text-tertiary))] select-none">长按左侧图标拖拽排序</span>
         <button
           onClick={(e) => { e.stopPropagation(); window.electronAPI?.openExternal(providerMeta.accountUrl) }}
           className="flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium border
             border-[rgb(var(--border-subtle)/0.1)] text-[rgb(var(--text-tertiary))]
             opacity-0 group-hover:opacity-100 hover:border-[rgb(var(--accent)/0.4)] hover:text-[rgb(var(--accent))] transition-all"
-          title={`${providerMeta.name} Platform`}
+          title={`前往 ${providerMeta.name} 平台`}
         >
           <ExternalLink className="w-3 h-3" />
-          Platform
+          官网
         </button>
         <button
           onClick={(e) => { e.stopPropagation(); onTogglePin?.() }}
@@ -269,10 +269,10 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
               ? 'border-[rgb(var(--accent)/0.4)] bg-[rgb(var(--accent)/0.1)] text-[rgb(var(--accent))]'
               : 'border-[rgb(var(--border-subtle)/0.1)] text-[rgb(var(--text-tertiary))] opacity-0 group-hover:opacity-100 hover:border-[rgb(var(--accent)/0.3)] hover:text-[rgb(var(--accent))]'
           }`}
-          title={isPinned ? 'Unpin' : 'Pin'}
+          title={isPinned ? '取消置顶' : '置顶'}
         >
           <Pin className={`w-3 h-3 ${isPinned ? 'fill-current' : ''}`} />
-          Pin
+          置顶
         </button>
       </div>
     </motion.div>

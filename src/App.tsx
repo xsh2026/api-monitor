@@ -136,10 +136,10 @@ export default function App() {
                     </svg>
                   </motion.div>
                   <h3 className={`font-semibold text-gray-500 dark:text-gray-400 mb-2 ${isCompact ? 'text-base' : 'text-lg'}`}>
-                    Add API Key to Start
+                    添加 API Key 开始监控
                   </h3>
                   <p className={`text-gray-500/80 dark:text-gray-600 max-w-[280px] ${isCompact ? 'text-xs' : 'text-sm'}`}>
-                    Click the settings icon to add your DeepSeek API Key and start monitoring balances and usage
+                    点击右上角设置图标，添加 API Key 即可查看余额和用量
                   </p>
                 </>
               )}
@@ -267,7 +267,7 @@ export default function App() {
                 animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center py-16 text-center"
               >
-                <p className="text-gray-500 dark:text-gray-400">No data</p>
+                <p className="text-gray-500 dark:text-gray-400">暂无数据</p>
               </motion.div>
             )
           )}
@@ -276,14 +276,14 @@ export default function App() {
 
       {!isMinimal && (
         <div className="px-4 py-2 border-t border-gray-200/50 dark:border-white/[0.05] flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-600">
-          <span>API Monitor v1.7 - {settings.accounts.length} accounts</span>
-          <span>{settings.accounts.length > 0 ? `Auto refresh: ${settings.refreshInterval}s` : 'Not configured'}</span>
+          <span>API Monitor v1.7 - {settings.accounts.length} 个账户</span>
+          <span>{settings.accounts.length > 0 ? `自动刷新: ${settings.refreshInterval}s` : '未配置'}</span>
         </div>
       )}
 
       {isMinimal && settings.accounts.length > 0 && (
         <div className="px-1 py-0.5 flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-600 border-t border-gray-200/30 dark:border-white/[0.03]">
-          <span>{lastUpdated ? `Updated ${formatTime(lastUpdated)}` : ''}</span>
+          <span>{lastUpdated ? `更新 ${formatTime(lastUpdated)}` : ''}</span>
           <span>{settings.refreshInterval}s</span>
         </div>
       )}
@@ -295,7 +295,7 @@ function formatTime(date: Date): string {
   const now = new Date()
   const diff = now.getTime() - date.getTime()
   const seconds = Math.floor(diff / 1000)
-  if (seconds < 60) return `${seconds}s ago`
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 60) return `${seconds}s 前`
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m 前`
   return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
 }
