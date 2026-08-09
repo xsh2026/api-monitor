@@ -7,6 +7,7 @@ import { BalanceCard } from '@/components/BalanceCard'
 import { UsageCard } from '@/components/UsageCard'
 import { StatusIndicator } from '@/components/StatusIndicator'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
+import { useReducedMotion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { Pin } from 'lucide-react'
 
@@ -14,6 +15,7 @@ export default function App() {
   const { settings, togglePin, isPinned, reorderAccounts } = useSettings()
   const { accountBalances, loading, error, lastUpdated, fetchBalance, retryCount } = useBalance()
   const usage = useUsage()
+  const preferReducedMotion = useReducedMotion()
 
   useAutoRefresh(() => {
     fetchBalance()
@@ -33,12 +35,11 @@ export default function App() {
   const isCompact = viewMode === 'compact'
   const hasUsage = usage.summary && usage.summary.totalTokens > 0
 
-  // 排序：置顶账户在前，然后按 accountOrder，不在 order 中的保持原位
+  // Sort: pinned first, then by accountOrder
   const sortedBalances = [...accountBalances].sort((a, b) => {
     const aPinned = isPinned(a.accountId) ? 1 : 0
     const bPinned = isPinned(b.accountId) ? 1 : 0
     if (aPinned !== bPinned) return bPinned - aPinned
-    // 两个都置顶或都不置顶，按 accountOrder
     const order = settings.accountOrder || []
     const aIdx = order.indexOf(a.accountId)
     const bIdx = order.indexOf(b.accountId)
@@ -48,21 +49,19 @@ export default function App() {
     return 0
   })
 
-  // 切换视图模式时自动调整窗口大小
+  // Auto-resize window on view mode change
   const prevViewModeRef = useRef(viewMode)
   useEffect(() => {
     if (prevViewModeRef.current === viewMode) return
     prevViewModeRef.current = viewMode
 
-    // 等待 DOM 更新后测量内容高度
     const timer = setTimeout(() => {
       if (viewMode === 'minimal') {
-        // 动态高度：header(24) + statusRow(16) + cards(N*24) + usageCard(24) + footer(14) + padding(6)
         const cardCount = sortedBalances.length
         const usageRow = hasUsage ? 1 : 0
         const contentHeight = 24 + 16 + cardCount * 24 + usageRow * 24 + 14 + 6
         const minH = 120
-        const maxH = Math.min(800, Math.max(minH, contentHeight + 30)) // +30 for title bar
+        const maxH = Math.min(800, Math.max(minH, contentHeight + 30))
         window.electronAPI?.resizeWindow(260, maxH)
       } else if (viewMode === 'compact') {
         window.electronAPI?.resizeWindow(400, 500)
@@ -74,9 +73,19 @@ export default function App() {
   }, [viewMode, sortedBalances.length, hasUsage])
 
   return (
-    <div className="h-screen flex flex-col bg-[#f5f5f7] dark:bg-[#0d0f14] text-gray-900 dark:text-gray-100 overflow-hidden">
+    <div
+      className="h-screen flex flex-col overflow-hidden"
+      style={{
+        background: settings.darkMode
+          ? 'rgb(13 15 20 / 0.92)'
+          : 'rgb(248 249 251 / 0.88)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        color: `var(--tw-text, ${settings.darkMode ? '#ededf2' : '#0f0f14'})`,
+      }}
+    >
       {!isMinimal && (
-        <div className="h-[1px] bg-gradient-to-r from-transparent via-blue-400/30 to-transparent" />
+        <div className="h-px bg-gradient-to-r from-transparent via-[rgb(var(--accent)/0.3)] to-transparent" />
       )}
 
       <Header />
@@ -101,9 +110,9 @@ export default function App() {
           {settings.accounts.length === 0 ? (
             <motion.div
               key="empty"
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={preferReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={preferReducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.98 }}
               className={isMinimal
                 ? 'flex items-center justify-center py-2 text-center'
                 : isCompact
@@ -113,12 +122,12 @@ export default function App() {
             >
               {isMinimal ? (
                 <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                  点击设置 → 添加 API Key
+                  点击设置 - 添加 API Key
                 </span>
               ) : (
                 <>
                   <motion.div
-                    animate={{ y: [0, -6, 0] }}
+                    animate={preferReducedMotion ? {} : { y: [0, -6, 0] }}
                     transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
                     className={`rounded-2xl bg-gradient-to-br from-blue-400/10 to-indigo-400/10 dark:from-blue-400/5 dark:to-indigo-400/5 flex items-center justify-center ${isCompact ? 'w-14 h-14 mb-4' : 'w-20 h-20 mb-6'}`}
                   >
@@ -127,20 +136,19 @@ export default function App() {
                     </svg>
                   </motion.div>
                   <h3 className={`font-semibold text-gray-500 dark:text-gray-400 mb-2 ${isCompact ? 'text-base' : 'text-lg'}`}>
-                    添加 API Key 开始监控
+                    Add API Key to Start
                   </h3>
                   <p className={`text-gray-500/80 dark:text-gray-600 max-w-[280px] ${isCompact ? 'text-xs' : 'text-sm'}`}>
-                    点击右上角设置图标，添加你的 DeepSeek API Key 即可查看余额和用量
+                    Click the settings icon to add your DeepSeek API Key and start monitoring balances and usage
                   </p>
                 </>
               )}
             </motion.div>
           ) : sortedBalances.length > 0 ? (
             isMinimal ? (
-              // 极简模式：无拖拽
               <motion.div
                 key="data-minimal"
-                initial={{ opacity: 0 }}
+                initial={preferReducedMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="space-y-0.5"
               >
@@ -176,7 +184,6 @@ export default function App() {
                 )}
               </motion.div>
             ) : (
-              // 正常/紧凑模式：可拖拽排序
               <Reorder.Group
                 key="data"
                 axis="y"
@@ -256,11 +263,11 @@ export default function App() {
             !loading && !error && (
               <motion.div
                 key="no-data"
-                initial={{ opacity: 0 }}
+                initial={preferReducedMotion ? false : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="flex flex-col items-center justify-center py-16 text-center"
               >
-                <p className="text-gray-500 dark:text-gray-400">暂无数据</p>
+                <p className="text-gray-500 dark:text-gray-400">No data</p>
               </motion.div>
             )
           )}
@@ -269,15 +276,14 @@ export default function App() {
 
       {!isMinimal && (
         <div className="px-4 py-2 border-t border-gray-200/50 dark:border-white/[0.05] flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-600">
-          <span>API Monitor v1.6 · {settings.accounts.length} 个账户</span>
-          <span>{settings.accounts.length > 0 ? `自动刷新: ${settings.refreshInterval}s` : '未配置'}</span>
+          <span>API Monitor v1.7 - {settings.accounts.length} accounts</span>
+          <span>{settings.accounts.length > 0 ? `Auto refresh: ${settings.refreshInterval}s` : 'Not configured'}</span>
         </div>
       )}
 
-      {/* 极简模式：底部微型状态条 */}
       {isMinimal && settings.accounts.length > 0 && (
         <div className="px-1 py-0.5 flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-600 border-t border-gray-200/30 dark:border-white/[0.03]">
-          <span>{lastUpdated ? `更新 ${formatTime(lastUpdated)}` : ''}</span>
+          <span>{lastUpdated ? `Updated ${formatTime(lastUpdated)}` : ''}</span>
           <span>{settings.refreshInterval}s</span>
         </div>
       )}
@@ -289,7 +295,7 @@ function formatTime(date: Date): string {
   const now = new Date()
   const diff = now.getTime() - date.getTime()
   const seconds = Math.floor(diff / 1000)
-  if (seconds < 60) return `${seconds}s前`
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m前`
+  if (seconds < 60) return `${seconds}s ago`
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
   return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
 }

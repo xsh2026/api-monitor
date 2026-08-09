@@ -134,9 +134,15 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.toggle('dark', settings.darkMode)
   }, [settings.darkMode])
 
-  // 同步字体颜色
+  // 同步字体颜色到 CSS 变量（同时写 hex 和 RGB 两个变量）
   useEffect(() => {
-    document.documentElement.style.setProperty('--accent-color', settings.fontColor)
+    const hex = settings.fontColor
+    document.documentElement.style.setProperty('--accent-color', hex)
+    // 将 hex 转为 RGB 分量，供 rgb(var(--accent)) 使用
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
+    document.documentElement.style.setProperty('--accent', `${r} ${g} ${b}`)
   }, [settings.fontColor])
 
   // 同步悬浮模式

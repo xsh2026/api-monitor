@@ -1,80 +1,82 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { useSettings } from '@/context/SettingsContext'
 import { PROVIDERS, type ProviderId } from '@/types'
 import { Pin, PinOff, Sun, Moon, Minimize2, X, Settings2, Plus, Trash2, Save, Download, Users, Check, Key, Info, Loader2, PanelBottomClose, PanelBottom, ChevronDown, Pencil } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 const PRESET_COLORS = [
-  '#3b82f6', // blue
-  '#6366f1', // indigo
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-  '#ef4444', // red
-  '#f97316', // orange
-  '#eab308', // yellow
-  '#22c55e', // green
-  '#14b8a6', // teal
-  '#06b6d4', // cyan
+  '#3b82f6',
+  '#6366f1',
+  '#8b5cf6',
+  '#ec4899',
+  '#ef4444',
+  '#f97316',
+  '#eab308',
+  '#22c55e',
+  '#14b8a6',
+  '#06b6d4',
 ]
 
 export function Header() {
   const { settings, updateSettings } = useSettings()
   const [showSettings, setShowSettings] = useState(false)
+  const preferReducedMotion = useReducedMotion() ?? false
   const isMinimal = settings.viewMode === 'minimal'
 
   return (
     <>
-      {/* 自定义标题栏 */}
+      {/* Custom title bar */}
       <div
         className={`flex items-center justify-between ${isMinimal ? 'px-1 py-0.5' : 'px-4 py-2.5'}`}
         style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
       >
-        {/* 左侧：标题 */}
-        <div className="flex items-center gap-1">
+        {/* Left: logo + title */}
+        <div className="flex items-center gap-1.5">
           <motion.div
-            className={`rounded-md flex items-center justify-center shadow-sm shadow-current/20 ${isMinimal ? 'w-4 h-4' : 'w-7 h-7 rounded-lg'}`}
-            style={{ backgroundColor: `var(--accent-color)` }}
-            whileHover={{ scale: 1.05, rotate: -5 }}
+            className={`rounded-md flex items-center justify-center shadow-sm ${isMinimal ? 'w-4 h-4' : 'w-7 h-7 rounded-lg'}`}
+            style={{ backgroundColor: `var(--accent-color, rgb(var(--accent)))` }}
+            whileHover={preferReducedMotion ? {} : { scale: 1.05 }}
           >
             <svg width={isMinimal ? 8 : 14} height={isMinimal ? 8 : 14} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
             </svg>
           </motion.div>
           {!isMinimal && (
-            <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 tracking-tight">
+            <span className="text-sm font-semibold tracking-tight text-[rgb(var(--text-primary))]">
               API Monitor
             </span>
           )}
         </div>
 
-        {/* 右侧：控制按钮 */}
+        {/* Right: controls */}
         <div
           className="flex items-center gap-0.5"
           style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
         >
-          {/* 设置 */}
+          {/* Settings */}
           <IconButton
             onClick={() => {
               const next = !showSettings
               setShowSettings(next)
               if (next) {
-                // 打开设置 → 自动切正常视图
                 updateSettings({ viewMode: 'normal' })
                 setTimeout(() => window.electronAPI?.resizeWindow(420, 680), 200)
               }
             }}
             active={showSettings}
-            tooltip="设置"
+            tooltip="Settings"
             compact={isMinimal}
+            preferReducedMotion={preferReducedMotion}
           >
             <Settings2 className={isMinimal ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
           </IconButton>
 
-          {/* 视图切换：正常 ↔ 极简 */}
+          {/* View toggle */}
           <IconButton
             onClick={() => updateSettings({ viewMode: isMinimal ? 'normal' : 'minimal' })}
-            tooltip={isMinimal ? '切换到正常视图' : '切换到极简视图'}
+            tooltip={isMinimal ? 'Normal View' : 'Minimal View'}
             compact={isMinimal}
+            preferReducedMotion={preferReducedMotion}
           >
             {isMinimal ? (
               <PanelBottom className={isMinimal ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
@@ -83,12 +85,13 @@ export function Header() {
             )}
           </IconButton>
 
-          {/* 悬浮 */}
+          {/* Float / Always on top */}
           <IconButton
             onClick={() => updateSettings({ floatMode: !settings.floatMode })}
             active={settings.floatMode}
-            tooltip={settings.floatMode ? '取消置顶' : '窗口置顶'}
+            tooltip={settings.floatMode ? 'Unpin Top' : 'Always on Top'}
             compact={isMinimal}
+            preferReducedMotion={preferReducedMotion}
           >
             {settings.floatMode ? (
               <Pin className={isMinimal ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
@@ -97,11 +100,12 @@ export function Header() {
             )}
           </IconButton>
 
-          {/* 主题 */}
+          {/* Theme toggle */}
           <IconButton
             onClick={() => updateSettings({ darkMode: !settings.darkMode })}
-            tooltip={settings.darkMode ? '浅色模式' : '深色模式'}
+            tooltip={settings.darkMode ? 'Light Mode' : 'Dark Mode'}
             compact={isMinimal}
+            preferReducedMotion={preferReducedMotion}
           >
             {settings.darkMode ? (
               <Moon className={isMinimal ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
@@ -110,38 +114,40 @@ export function Header() {
             )}
           </IconButton>
 
-          {/* 最小化 → 极简模式 + 移到左上角 */}
+          {/* Minimize to minimal + top-left */}
           <IconButton
             onClick={() => {
               updateSettings({ viewMode: 'minimal' })
               setTimeout(() => window.electronAPI?.moveWindow(0, 0), 200)
             }}
-            tooltip="切换到极简视图并移到左上角"
+            tooltip="Minimal View (top-left)"
             compact={isMinimal}
+            preferReducedMotion={preferReducedMotion}
           >
             <Minimize2 className={isMinimal ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
           </IconButton>
 
-          {/* 关闭 */}
+          {/* Quit */}
           <IconButton
             onClick={() => window.electronAPI?.quitApp()}
-            tooltip="退出程序"
+            tooltip="Quit"
             className="hover:bg-red-500/10 hover:text-red-500"
             compact={isMinimal}
+            preferReducedMotion={preferReducedMotion}
           >
             <X className={isMinimal ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
           </IconButton>
         </div>
       </div>
 
-      {/* 设置面板 */}
+      {/* Settings panel */}
       <motion.div
         initial={false}
         animate={{
           height: showSettings ? 'auto' : 0,
           opacity: showSettings ? 1 : 0,
         }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
         className="overflow-hidden"
       >
         <SettingsPanel onClose={() => setShowSettings(false)} />
@@ -156,6 +162,7 @@ function IconButton({
   tooltip,
   className = '',
   compact = false,
+  preferReducedMotion,
   children,
 }: {
   onClick: () => void
@@ -163,21 +170,22 @@ function IconButton({
   tooltip: string
   className?: string
   compact?: boolean
+  preferReducedMotion?: boolean
   children: React.ReactNode
 }) {
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+      whileHover={preferReducedMotion ? {} : { scale: 1.1 }}
+      whileTap={preferReducedMotion ? {} : { scale: 0.92 }}
       title={tooltip}
       className={`
         flex items-center justify-center
-        transition-colors duration-200
+        transition-colors duration-150
         ${compact ? 'w-5 h-5 rounded-md' : 'w-7 h-7 rounded-lg'}
         ${active
-          ? 'bg-blue-500/10 text-blue-500 dark:bg-blue-400/10 dark:text-blue-400'
-          : 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.06]'
+          ? 'bg-[rgb(var(--accent)/0.1)] text-[rgb(var(--accent))]'
+          : 'text-[rgb(var(--text-tertiary))] hover:text-[rgb(var(--text-secondary))] hover:bg-[rgb(var(--border-subtle)/0.06)]'
         }
         ${className}
       `}
@@ -203,7 +211,7 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
 
   const handleAdd = () => {
     if (!newApiKey.trim()) return
-    addAccount(newLabel || '未命名', newApiKey.trim(), newSession.trim(), newProvider)
+    addAccount(newLabel || 'Unnamed', newApiKey.trim(), newSession.trim(), newProvider)
     setNewLabel('')
     setNewApiKey('')
     setNewSession('')
@@ -246,7 +254,7 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
         setVerifyMsg({ type: 'error', text: result.message })
       }
     } catch {
-      setVerifyMsg({ type: 'error', text: '网络错误，请检查连接' })
+      setVerifyMsg({ type: 'error', text: 'Network error. Check connection.' })
     } finally {
       setVerifying(false)
     }
@@ -254,49 +262,58 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="mx-4 mb-3 p-4 rounded-xl bg-gray-50/80 dark:bg-white/[0.04] border border-gray-200/50 dark:border-white/[0.06] space-y-4 max-h-[460px] overflow-y-auto scrollbar-thin"
-      style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+      className="mx-4 mb-3 p-4 rounded-xl border max-h-[460px] overflow-y-auto scrollbar-thin space-y-4"
+      style={{
+        background: `rgb(var(--surface-overlay) / 0.85)`,
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderColor: `rgb(var(--border-subtle) / 0.08)`,
+        WebkitAppRegion: 'no-drag',
+      } as React.CSSProperties}
     >
-      {/* 保存按钮 */}
+      {/* Save / Export */}
       <div className="flex items-center gap-2">
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleSaveToApp}
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-medium
-            bg-blue-500/10 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400
-            hover:bg-blue-500/20 dark:hover:bg-blue-400/20 transition-colors"
+            bg-[rgb(var(--accent)/0.1)] text-[rgb(var(--accent))]
+            hover:bg-[rgb(var(--accent)/0.18)] transition-colors"
         >
           {appSaved ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
-          {appSaved ? '已保存' : '保存到软件'}
+          {appSaved ? 'Saved' : 'Save to App'}
         </motion.button>
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleExportToFile}
           className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-medium
-            bg-gray-200/50 dark:bg-white/[0.06] text-gray-600 dark:text-gray-400
-            hover:bg-gray-300/50 dark:hover:bg-white/[0.1] transition-colors"
+            bg-[rgb(var(--text-tertiary)/0.1)] text-[rgb(var(--text-secondary))]
+            hover:bg-[rgb(var(--text-tertiary)/0.18)] transition-colors"
         >
           {fileSaved ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-          {fileSaved ? '已导出' : '导出到文件'}
+          {fileSaved ? 'Exported' : 'Export File'}
         </motion.button>
       </div>
 
-      <div className="border-t border-gray-200/50 dark:border-white/[0.06]" />
+      <hr className="hairline" />
 
-      {/* 账户列表 */}
+      {/* Account list */}
       {settings.accounts.length > 0 && (
         <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-gray-400 mb-1">
+          <div className="flex items-center gap-1.5 text-[10px] text-[rgb(var(--text-tertiary))] mb-1">
             <Users className="w-3 h-3" />
-            <span>{settings.accounts.length} 个账户</span>
+            <span>{settings.accounts.length} accounts</span>
           </div>
           {settings.accounts.map(acct => (
             <div
               key={acct.id}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/50 dark:bg-white/[0.03]
-                border border-gray-200/30 dark:border-white/[0.04]"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border"
+              style={{
+                background: `rgb(var(--surface) / 0.4)`,
+                borderColor: `rgb(var(--border-subtle) / 0.06)`,
+              }}
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
@@ -323,14 +340,14 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
                         setEditingId(null)
                       }}
                       className="flex-1 min-w-0 px-1.5 py-0.5 text-xs rounded
-                        bg-white dark:bg-white/[0.08]
-                        border border-blue-500/50
-                        text-gray-900 dark:text-gray-100
+                        border border-[rgb(var(--accent)/0.4)]
+                        text-[rgb(var(--text-primary))]
                         focus:outline-none"
+                      style={{ background: `rgb(var(--surface))` }}
                       autoFocus
                     />
                   ) : (
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-200 truncate">
+                    <span className="text-xs font-medium text-[rgb(var(--text-primary))] truncate">
                       {acct.label}
                     </span>
                   )}
@@ -346,13 +363,13 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
                         setEditName(acct.label)
                       }
                     }}
-                    className="text-gray-500 hover:text-blue-500 transition-colors p-0.5 flex-shrink-0"
-                    title="编辑名称"
+                    className="text-[rgb(var(--text-tertiary))] hover:text-[rgb(var(--accent))] transition-colors p-0.5 flex-shrink-0"
+                    title="Edit name"
                   >
                     <Pencil className="w-3 h-3" />
                   </motion.button>
                 </div>
-                <div className="text-[10px] text-gray-500 truncate">
+                <div className="text-[10px] text-[rgb(var(--text-tertiary))] truncate">
                   {acct.apiKey.slice(0, 12)}...
                 </div>
               </div>
@@ -360,7 +377,7 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => removeAccount(acct.id)}
-                className="text-gray-600 hover:text-red-500 transition-colors p-1"
+                className="text-[rgb(var(--text-tertiary))] hover:text-red-500 transition-colors p-1"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </motion.button>
@@ -369,39 +386,27 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      {/* 添加新账户 */}
+      {/* Add account */}
       <div className="space-y-2">
-        <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">添加账户</div>
+        <div className="text-[10px] text-[rgb(var(--text-tertiary))] font-medium">Add Account</div>
         <input
           type="text"
           value={newLabel}
           onChange={(e) => setNewLabel(e.target.value)}
-          placeholder="账户名称（可选）"
-          className="w-full px-3 py-2 text-xs rounded-lg
-            bg-white dark:bg-white/[0.06]
-            border border-gray-200 dark:border-white/[0.08]
-            text-gray-900 dark:text-gray-100
-            placeholder-gray-400 dark:placeholder-gray-600
-            focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50
-            transition-all duration-200"
+          placeholder="Account name (optional)"
+          className="field-input"
         />
-        {/* 厂商选择 */}
         <div className="relative">
           <select
             value={newProvider}
             onChange={(e) => setNewProvider(e.target.value as ProviderId)}
-            className="w-full px-3 py-2 pr-8 text-xs rounded-lg appearance-none cursor-pointer
-              bg-gray-100 dark:bg-white/[0.08]
-              border border-gray-300 dark:border-white/[0.1]
-              text-gray-900 dark:text-gray-100
-              focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50
-              transition-all duration-200"
+            className="field-input appearance-none cursor-pointer pr-8"
           >
             {Object.entries(PROVIDERS).map(([id, meta]) => (
               <option key={id} value={id}>{meta.name}</option>
             ))}
           </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600 pointer-events-none" />
+          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[rgb(var(--text-tertiary))] pointer-events-none" />
         </div>
         <input
           type="password"
@@ -409,32 +414,19 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
           onChange={(e) => setNewApiKey(e.target.value)}
           placeholder="API Key (sk-...)"
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-          className="w-full px-3 py-2 text-xs rounded-lg
-            bg-white dark:bg-white/[0.06]
-            border border-gray-200 dark:border-white/[0.08]
-            text-gray-900 dark:text-gray-100
-            placeholder-gray-400 dark:placeholder-gray-600
-            focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50
-            transition-all duration-200"
+          className="field-input"
         />
         <input
           type="password"
           value={newSession}
           onChange={(e) => setNewSession(e.target.value)}
-          placeholder="Session Token（可选，用于用量查询）"
-          className="w-full px-3 py-2 pr-10 text-xs rounded-lg
-            bg-white dark:bg-white/[0.06]
-            border border-gray-200 dark:border-white/[0.08]
-            text-gray-900 dark:text-gray-100
-            placeholder-gray-400 dark:placeholder-gray-600
-            focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500/50
-            transition-all duration-200"
+          placeholder="Session Token (optional, for usage)"
+          className="field-input"
         />
-        {/* Session Token 操作区 */}
         <div className="flex items-center gap-1.5">
           <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleVerifyKey}
             disabled={!newApiKey.trim() || verifying}
             className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-[10px]
@@ -449,11 +441,10 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
             ) : (
               <Key className="w-3 h-3" />
             )}
-            验证 API
+            Verify API
           </motion.button>
-          {/* 带 tooltip 的 info 图标 */}
           <div className="relative group/tip">
-            <Info className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400 cursor-help" />
+            <Info className="w-3.5 h-3.5 text-[rgb(var(--text-tertiary))] cursor-help" />
             <div className="
               absolute bottom-full right-0 mb-1.5 w-56 px-2.5 py-2 rounded-lg
               bg-gray-800 dark:bg-gray-200 text-[10px] leading-relaxed
@@ -464,14 +455,13 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
               transition-all duration-150 z-50
               pointer-events-none
             ">
-              <div className="font-medium mb-1">关于用量查询</div>
-              用量数据现在直接通过 API Key 的 Bearer 认证获取，无需额外配置 Session Token。
-              点击「验证 API」可测试 API Key 是否有效以及用量查询是否可用。
-              Session Token 字段已变为可选，仅在 Bearer 方式失效时作为备选。
+              <div className="font-medium mb-1">About Usage Query</div>
+              Usage data now uses Bearer token authentication via API Key. No additional Session Token required.
+              Click "Verify API" to test if the API Key is valid and if usage query is available.
+              Session Token field is optional, only as a fallback if Bearer auth fails.
             </div>
           </div>
         </div>
-        {/* 验证反馈 */}
         {verifyMsg && (
           <motion.div
             initial={{ opacity: 0, y: -4 }}
@@ -491,25 +481,22 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
           onClick={handleAdd}
           disabled={!newApiKey.trim()}
           className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-medium
-            bg-gradient-to-r from-blue-500/10 to-indigo-500/10
-            dark:from-blue-400/10 dark:to-indigo-400/10
-            text-blue-600 dark:text-blue-400
-            hover:from-blue-500/20 hover:to-indigo-500/20
-            dark:hover:from-blue-400/20 dark:hover:to-indigo-400/20
-            transition-all duration-200
+            bg-[rgb(var(--accent)/0.1)] text-[rgb(var(--accent))]
+            hover:bg-[rgb(var(--accent)/0.18)]
+            transition-colors duration-150
             disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Plus className="w-3.5 h-3.5" />
-          添加
+          Add
         </motion.button>
       </div>
 
-      <div className="border-t border-gray-200/50 dark:border-white/[0.06]" />
+      <hr className="hairline" />
 
-      {/* 刷新间隔 */}
+      {/* Refresh interval */}
       <div>
-        <label className="block text-[11px] font-medium text-gray-500 dark:text-gray-400 mb-1.5">
-          自动刷新间隔：{settings.refreshInterval}s
+        <label className="block text-[11px] font-medium text-[rgb(var(--text-secondary))] mb-1.5">
+          Auto Refresh: {settings.refreshInterval}s
         </label>
         <input
           type="range"
@@ -518,55 +505,54 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
           step={10}
           value={settings.refreshInterval}
           onChange={(e) => updateSettings({ refreshInterval: parseInt(e.target.value) })}
-          className="w-full h-1.5 rounded-full appearance-none bg-gray-200 dark:bg-white/[0.08]
+          className="w-full h-1.5 rounded-full appearance-none cursor-pointer
+            bg-[rgb(var(--text-tertiary)/0.15)]
             [&::-webkit-slider-thumb]:appearance-none
             [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
             [&::-webkit-slider-thumb]:rounded-full
-            [&::-webkit-slider-thumb]:bg-blue-500
-            [&::-webkit-slider-thumb]:shadow-lg
-            [&::-webkit-slider-thumb]:shadow-blue-500/30
+            [&::-webkit-slider-thumb]:bg-[rgb(var(--accent))]
+            [&::-webkit-slider-thumb]:shadow-md
             [&::-webkit-slider-thumb]:cursor-pointer
             [&::-webkit-slider-thumb]:transition-transform
             [&::-webkit-slider-thumb]:hover:scale-110"
         />
-        <div className="flex justify-between text-[10px] text-gray-500 mt-1">
+        <div className="flex justify-between text-[10px] text-[rgb(var(--text-tertiary))] mt-1">
           <span>10s</span>
           <span>5min</span>
         </div>
       </div>
 
-      <div className="border-t border-gray-200/50 dark:border-white/[0.06]" />
+      <hr className="hairline" />
 
-      {/* 开机自启动 */}
+      {/* Auto launch */}
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">开机自启动</span>
+        <span className="text-[11px] font-medium text-[rgb(var(--text-secondary))]">Launch at Startup</span>
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => updateSettings({ autoLaunch: !settings.autoLaunch })}
-          className={`relative w-9 h-5 rounded-full transition-colors duration-200 ${
-            settings.autoLaunch
-              ? 'bg-blue-500'
-              : 'bg-gray-300 dark:bg-white/[0.12]'
-          }`}
+          className={`toggle-track ${settings.autoLaunch ? 'toggle-track-on' : 'toggle-track-off'}`}
         >
           <motion.div
-            className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"
+            className="toggle-thumb"
             animate={{ left: settings.autoLaunch ? 'calc(100% - 1.125rem)' : '0.125rem' }}
             transition={{ type: 'spring', stiffness: 500, damping: 30 }}
           />
         </motion.button>
       </div>
 
-      {/* 视图模式：三态分段选择器 */}
+      {/* View mode */}
       <div>
-        <span className="block text-[11px] font-medium text-gray-500 dark:text-gray-400 mb-1.5">
-          视图模式
+        <span className="block text-[11px] font-medium text-[rgb(var(--text-secondary))] mb-1.5">
+          View Mode
         </span>
-        <div className="flex gap-0.5 p-0.5 rounded-lg bg-gray-200/50 dark:bg-white/[0.06]">
+        <div
+          className="flex gap-0.5 p-0.5 rounded-lg"
+          style={{ background: `rgb(var(--text-tertiary) / 0.1)` }}
+        >
           {([
-            ['正常', 'normal'],
-            ['紧凑', 'compact'],
-            ['极简', 'minimal'],
+            ['Normal', 'normal'],
+            ['Compact', 'compact'],
+            ['Minimal', 'minimal'],
           ] as const).map(([label, mode]) => (
             <motion.button
               key={mode}
@@ -575,10 +561,10 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
                 updateSettings({ viewMode: mode })
                 if (mode === 'minimal') onClose()
               }}
-              className={`flex-1 py-1.5 rounded-md text-[10px] font-medium transition-all duration-200 ${
+              className={`flex-1 py-1.5 rounded-md text-[10px] font-medium transition-all duration-150 ${
                 settings.viewMode === mode
-                  ? 'bg-white dark:bg-white/[0.12] text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                  ? 'bg-white dark:bg-white/[0.14] text-[rgb(var(--accent))] shadow-sm'
+                  : 'text-[rgb(var(--text-tertiary))] hover:text-[rgb(var(--text-secondary))]'
               }`}
             >
               {label}
@@ -587,11 +573,11 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {/* 强调色 */}
+      {/* Accent color */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">强调色</span>
-          <span className="text-[10px] text-gray-500 font-mono">{settings.fontColor}</span>
+          <span className="text-[11px] font-medium text-[rgb(var(--text-secondary))]">Accent Color</span>
+          <span className="text-[10px] text-[rgb(var(--text-tertiary))] font-mono">{settings.fontColor}</span>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -602,7 +588,6 @@ function SettingsPanel({ onClose }: { onClose: () => void }) {
               [&::-webkit-color-swatch-wrapper]:p-0
               [&::-webkit-color-swatch]:rounded-lg [&::-webkit-color-swatch]:border-0"
           />
-          {/* 预设色板 */}
           <div className="flex gap-1.5 flex-1 justify-end">
             {PRESET_COLORS.map((c) => (
               <motion.button
