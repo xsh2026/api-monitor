@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 全局基础样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 透明窗口背景 */
+html {
+  background: transparent !important;
+}
+
+/* Electron 无边框窗口圆角 */
+body {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* 自定义滚动条 */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.2);
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.35);
+}
+
+/* 选中文本颜色 */
+::selection {
+  background: rgba(51, 142, 255, 0.2);
+  color: inherit;
+}
+
+/* 输入框自动填充样式覆盖 */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  transition: background-color 5000s ease-in-out 0s;
+  -webkit-text-fill-color: inherit;
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: none;
+}
+
+/* 玻璃态工具类 */
+@layer components {
+  .glass {
+    @apply bg-white/60 dark:bg-white/[0.04] backdrop-blur-xl
+           border border-white/20 dark:border-white/[0.06]
+           shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)];
+  }
+
+  .glass-card {
+    @apply rounded-2xl p-5
+           bg-white/60 dark:bg-white/[0.04] backdrop-blur-xl
+           border border-white/20 dark:border-white/[0.06]
+           shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.25)]
+           hover:shadow-[0_8px_36px_rgba(0,0,0,0.06)] dark:hover:shadow-[0_8px_36px_rgba(0,0,0,0.35)]
+           transition-shadow duration-300;
+  }
+}
