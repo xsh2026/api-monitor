@@ -14,7 +14,7 @@ import { Pin } from 'lucide-react'
 
 export default function App() {
   const { settings, togglePin, isPinned, reorderAccounts } = useSettings()
-  const { accountBalances, loading, error, lastUpdated, fetchBalance, sessionSpent, sessionTotalSpent, cumulativeTotalSpent } = useBalance()
+  const { accountBalances, loading, error, lastUpdated, fetchBalance, sessionSpent, sessionTotalSpent, cumulativeSpent, cumulativeTotalSpent } = useBalance()
   const usage = useUsage()
   const preferReducedMotion = useReducedMotion()
   const [showSettings, setShowSettings] = useState(false)
@@ -36,6 +36,7 @@ export default function App() {
   const isMinimal = viewMode === 'minimal'
   const isCompact = viewMode === 'compact'
   const hasUsage = usage.summary && usage.summary.totalTokens > 0
+  const isCustom = settings.style !== 'default'
 
   // Sort: pinned first, then by accountOrder
   const sortedBalances = [...accountBalances].sort((a, b) => {
@@ -152,6 +153,7 @@ export default function App() {
                           isAvailable={acct.isAvailable}
                           loading={acct.loading}
                           sessionSpent={sessionSpent[acct.accountId]}
+                          cumulativeSpent={cumulativeSpent[acct.accountId]}
                           index={i + j}
                           viewMode={inSidePanel ? 'compact' : viewMode}
                           accountLabel={acct.accountLabel}
@@ -201,6 +203,7 @@ export default function App() {
                           isAvailable={acct.isAvailable}
                           loading={acct.loading}
                           sessionSpent={sessionSpent[acct.accountId]}
+                          cumulativeSpent={cumulativeSpent[acct.accountId]}
                           index={i + j}
                           viewMode={viewMode}
                           accountLabel={acct.accountLabel}
@@ -271,7 +274,7 @@ export default function App() {
     settings.accounts.length > 0 && (
       <div className="px-1 py-0.5 flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-600 border-t border-gray-200/30 dark:border-white/[0.03]">
         <span>{lastUpdated ? `更新 ${formatTime(lastUpdated)}` : ''}</span>
-        <span className="text-emerald-500/80 font-medium">本次 ¥{sessionTotalSpent.toFixed(2)}</span>
+        <span className="text-emerald-500/80 font-medium whitespace-nowrap">本次 ¥{sessionTotalSpent.toFixed(2)} · 累计 ¥{cumulativeTotalSpent.toFixed(2)}</span>
         <span>{settings.refreshInterval}s</span>
       </div>
     )
@@ -285,16 +288,15 @@ export default function App() {
 
   return (
     <div
-      className="h-screen flex flex-col overflow-hidden"
+      className="h-screen flex flex-col overflow-hidden relative"
       style={{
-        background: settings.darkMode
-          ? 'rgb(13 15 20 / 0.92)'
-          : 'rgb(248 249 251 / 0.88)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        color: `var(--tw-text, ${settings.darkMode ? '#ededf2' : '#0f0f14'})`,
+        background: isCustom ? 'rgb(var(--surface))' : (settings.darkMode ? 'rgb(13 15 20 / 0.92)' : 'rgb(248 249 251 / 0.88)'),
+        backdropFilter: isCustom ? 'none' : 'blur(24px)',
+        WebkitBackdropFilter: isCustom ? 'none' : 'blur(24px)',
+        color: isCustom ? 'rgb(var(--text-primary))' : `var(--tw-text, ${settings.darkMode ? '#ededf2' : '#0f0f14'})`,
       }}
     >
+      {settings.style === 'brutalist' && <div className="brutalist-overlay" />}
       {!isMinimal && !showSettings && (
         <div className="h-px bg-gradient-to-r from-transparent via-[rgb(var(--accent)/0.3)] to-transparent" />
       )}

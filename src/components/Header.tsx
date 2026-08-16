@@ -68,7 +68,12 @@ export function Header({ showSettings, onToggleSettings }: HeaderProps) {
 
           {/* View toggle */}
           <IconButton
-            onClick={() => updateSettings({ viewMode: isMinimal ? 'normal' : 'minimal' })}
+            onClick={() => {
+              const toMinimal = !isMinimal
+              updateSettings({ viewMode: toMinimal ? 'minimal' : 'normal' })
+              // 切到极简时关闭设置面板，否则窗口保持宽屏、内容空白
+              if (toMinimal && showSettings) onToggleSettings()
+            }}
             tooltip={isMinimal ? '正常视图' : '极简视图'}
             compact={isMinimal}
             preferReducedMotion={preferReducedMotion}
@@ -113,6 +118,7 @@ export function Header({ showSettings, onToggleSettings }: HeaderProps) {
           <IconButton
             onClick={() => {
               updateSettings({ viewMode: 'minimal' })
+              if (showSettings) onToggleSettings()
               setTimeout(() => window.electronAPI?.moveWindow(0, 0), 200)
             }}
             tooltip="切换到极简视图并移到左上角"

@@ -395,6 +395,39 @@ export function SettingsPanel({ onClose }: { onClose?: () => void }) {
         </div>
       </div>
 
+      {/* Interface style */}
+      <div>
+        <span className="block text-[11px] font-medium text-[rgb(var(--text-secondary))] mb-1.5">
+          界面风格
+        </span>
+        <div
+          className="grid grid-cols-3 gap-0.5 p-0.5 rounded-lg"
+          style={{ background: `rgb(var(--text-tertiary) / 0.1)` }}
+        >
+          {([
+            ['默认', 'default'],
+            ['野兽派', 'brutalist'],
+            ['极简', 'editorial'],
+            ['奢华', 'luxury'],
+            ['纸印', 'paper'],
+            ['霓虹', 'neon'],
+          ] as const).map(([label, style]) => (
+            <motion.button
+              key={style}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => updateSettings({ style })}
+              className={`py-1.5 rounded-md text-[10px] font-medium transition-all duration-150 ${
+                settings.style === style
+                  ? 'bg-white dark:bg-white/[0.14] text-[rgb(var(--accent))] shadow-sm'
+                  : 'text-[rgb(var(--text-tertiary))] hover:text-[rgb(var(--text-secondary))]'
+              }`}
+            >
+              {label}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+
       {/* Accent color */}
       <div>
         <div className="flex items-center justify-between mb-1.5">

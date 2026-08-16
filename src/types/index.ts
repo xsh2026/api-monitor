@@ -75,12 +75,15 @@ export interface AccountBalance {
 
 export type ViewMode = 'normal' | 'compact' | 'minimal'
 
+export type UITheme = 'default' | 'brutalist' | 'editorial' | 'luxury' | 'paper' | 'neon'
+
 export interface AppSettings {
   accounts: AccountConfig[]
   activeAccountId: string | null
   refreshInterval: number
   floatMode: boolean
   darkMode: boolean
+  style: UITheme
   viewMode: ViewMode
   fontColor: string
   pinnedAccountIds: string[]

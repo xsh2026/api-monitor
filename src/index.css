@@ -281,3 +281,283 @@ input:-webkit-autofill:focus {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ── 野兽派主题（Tactical Telemetry / CRT 终端）── */
+[data-style="brutalist"] {
+  --surface: 244 244 240;
+  --surface-raised: 252 252 250;
+  --surface-overlay: 244 244 240;
+  --text-primary: 17 17 17;
+  --text-secondary: 92 92 92;
+  --text-tertiary: 152 152 152;
+  --border-subtle: 17 17 17;
+  --border-strong: 17 17 17;
+  --accent: 255 42 42;
+  --accent-color: #ff2a2a;
+  --radius-card: 0px;
+  --radius-input: 0px;
+  --radius-button: 0px;
+  --radius-full: 0px;
+}
+
+[data-style="brutalist"].dark {
+  --surface: 10 10 10;
+  --surface-raised: 16 16 16;
+  --surface-overlay: 10 10 10;
+  --text-primary: 234 234 234;
+  --text-secondary: 158 158 158;
+  --text-tertiary: 96 96 96;
+  --border-subtle: 234 234 234;
+  --border-strong: 234 234 234;
+}
+
+[data-style="brutalist"] body {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', 'SFMono-Regular', 'Cascadia Mono',
+    Consolas, 'Liberation Mono', monospace;
+}
+
+/* 全局直角（杀掉所有 Tailwind rounded-*） */
+[data-style="brutalist"] *,
+[data-style="brutalist"] *::before,
+[data-style="brutalist"] *::after {
+  border-radius: 0 !important;
+}
+
+/* 玻璃卡片 → 实底 + 硬边框，去掉模糊与阴影 */
+[data-style="brutalist"] .glass-card,
+[data-style="brutalist"] .glass-panel {
+  background: rgb(var(--surface-raised));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgb(var(--border-subtle) / 0.3);
+  box-shadow: none;
+}
+
+[data-style="brutalist"] .glass-card:hover {
+  border-color: rgb(var(--accent) / 0.6);
+  box-shadow: none;
+}
+
+/* 输入框 */
+[data-style="brutalist"] .field-input {
+  background: rgb(var(--surface-raised));
+  border: 1px solid rgb(var(--border-subtle) / 0.3);
+  font-family: inherit;
+}
+
+[data-style="brutalist"] .field-input:focus {
+  border-color: rgb(var(--accent) / 0.7);
+  box-shadow: none;
+}
+
+/* 进度条 */
+[data-style="brutalist"] .progress-track {
+  background: rgb(var(--text-tertiary) / 0.18);
+}
+
+/* 开关 */
+[data-style="brutalist"] .toggle-track {
+  border: 1px solid rgb(var(--border-subtle) / 0.3);
+}
+
+[data-style="brutalist"] .toggle-thumb {
+  background: rgb(var(--text-primary));
+  box-shadow: none;
+}
+
+/* 滚动条 */
+[data-style="brutalist"] .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(var(--text-tertiary) / 0.4);
+}
+
+/* 选中态 */
+[data-style="brutalist"] ::selection {
+  background: rgb(var(--accent) / 0.4);
+}
+
+/* 扫描线 + 噪点纹理（由 App 渲染的 .brutalist-overlay 触发） */
+.brutalist-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image:
+    repeating-linear-gradient(0deg, rgb(234 234 234 / 0.022) 0px, rgb(234 234 234 / 0.022) 1px, transparent 1px, transparent 3px),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* ── 极简编辑风 ── */
+[data-style="editorial"] {
+  --surface: 250 249 247;
+  --surface-raised: 255 255 255;
+  --surface-overlay: 250 249 247;
+  --text-primary: 26 26 24;
+  --text-secondary: 120 118 112;
+  --text-tertiary: 168 166 160;
+  --border-subtle: 26 26 24;
+  --border-strong: 26 26 24;
+  --accent: 199 93 59;
+  --accent-color: #c75d3b;
+  --radius-card: 8px;
+  --radius-input: 6px;
+  --radius-button: 6px;
+}
+
+[data-style="editorial"].dark {
+  --surface: 26 26 24;
+  --surface-raised: 34 34 31;
+  --surface-overlay: 26 26 24;
+  --text-primary: 237 236 232;
+  --text-secondary: 165 162 154;
+  --text-tertiary: 105 103 98;
+  --border-subtle: 237 236 232;
+  --border-strong: 237 236 232;
+}
+
+[data-style="editorial"] .glass-card,
+[data-style="editorial"] .glass-panel {
+  background: rgb(var(--surface-raised));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgb(var(--border-subtle) / 0.12);
+  box-shadow: none;
+}
+
+[data-style="editorial"] .glass-card:hover {
+  border-color: rgb(var(--border-subtle) / 0.24);
+  box-shadow: none;
+}
+
+/* ── 高定奢华 ── */
+[data-style="luxury"] {
+  --surface: 247 245 240;
+  --surface-raised: 255 255 255;
+  --surface-overlay: 247 245 240;
+  --text-primary: 26 26 22;
+  --text-secondary: 110 106 96;
+  --text-tertiary: 165 160 148;
+  --border-subtle: 26 26 22;
+  --border-strong: 26 26 22;
+  --accent: 201 169 106;
+  --accent-color: #c9a96a;
+}
+
+[data-style="luxury"].dark {
+  --surface: 13 13 16;
+  --surface-raised: 22 22 26;
+  --surface-overlay: 16 16 20;
+  --text-primary: 237 235 230;
+  --text-secondary: 168 164 152;
+  --text-tertiary: 96 94 88;
+  --border-subtle: 237 235 230;
+  --border-strong: 237 235 230;
+}
+
+[data-style="luxury"] .glass-card,
+[data-style="luxury"] .glass-panel {
+  background: rgb(var(--surface-raised));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgb(var(--border-subtle) / 0.08);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 8px 24px rgb(0 0 0 / 0.42),
+    0 0 0 0.5px rgb(201 169 106 / 0.1) inset;
+}
+
+[data-style="luxury"] .glass-card:hover {
+  border-color: rgb(201 169 106 / 0.35);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.3),
+    0 12px 32px rgb(0 0 0 / 0.5),
+    0 0 0 0.5px rgb(201 169 106 / 0.16) inset;
+}
+
+/* ── 暖纸印刷风 ── */
+[data-style="paper"] {
+  --surface: 247 244 237;
+  --surface-raised: 252 250 244;
+  --surface-overlay: 247 244 237;
+  --text-primary: 26 26 26;
+  --text-secondary: 90 88 84;
+  --text-tertiary: 150 146 138;
+  --border-subtle: 26 26 26;
+  --border-strong: 26 26 26;
+  --accent: 166 58 43;
+  --accent-color: #a63a2b;
+}
+
+[data-style="paper"].dark {
+  --surface: 32 29 24;
+  --surface-raised: 40 36 30;
+  --surface-overlay: 32 29 24;
+  --text-primary: 232 228 218;
+  --text-secondary: 168 162 150;
+  --text-tertiary: 110 105 96;
+  --border-subtle: 232 228 218;
+  --border-strong: 232 228 218;
+}
+
+[data-style="paper"] body {
+  font-family: 'Songti SC', 'SimSun', 'Georgia', 'Times New Roman', serif;
+}
+
+[data-style="paper"] *,
+[data-style="paper"] *::before,
+[data-style="paper"] *::after {
+  border-radius: 0 !important;
+}
+
+[data-style="paper"] .glass-card,
+[data-style="paper"] .glass-panel {
+  background: rgb(var(--surface-raised));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgb(var(--border-subtle) / 0.22);
+  box-shadow: none;
+}
+
+/* ── 霓虹赛博 ── */
+[data-style="neon"] {
+  --surface: 245 247 249;
+  --surface-raised: 255 255 255;
+  --surface-overlay: 245 247 249;
+  --text-primary: 16 19 26;
+  --text-secondary: 90 96 108;
+  --text-tertiary: 150 155 165;
+  --border-subtle: 16 19 26;
+  --border-strong: 16 19 26;
+  --accent: 0 240 255;
+  --accent-color: #00f0ff;
+}
+
+[data-style="neon"].dark {
+  --surface: 5 5 8;
+  --surface-raised: 11 11 17;
+  --surface-overlay: 8 8 12;
+  --text-primary: 232 232 240;
+  --text-secondary: 150 150 172;
+  --text-tertiary: 88 88 110;
+  --border-subtle: 232 232 240;
+  --border-strong: 232 232 240;
+}
+
+[data-style="neon"] .glass-card,
+[data-style="neon"] .glass-panel {
+  background: rgb(var(--surface-raised));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgb(var(--accent) / 0.45);
+  box-shadow:
+    0 0 8px rgb(var(--accent) / 0.22),
+    0 0 22px rgb(var(--accent) / 0.1),
+    0 0 0 0.5px rgb(var(--accent) / 0.18) inset;
+}
+
+[data-style="neon"] .glass-card:hover {
+  border-color: rgb(var(--accent) / 0.75);
+  box-shadow:
+    0 0 12px rgb(var(--accent) / 0.35),
+    0 0 32px rgb(var(--accent) / 0.16),
+    0 0 0 0.5px rgb(var(--accent) / 0.26) inset;
+}

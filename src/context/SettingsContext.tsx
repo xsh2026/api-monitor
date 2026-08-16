@@ -8,11 +8,22 @@ const DEFAULT_SETTINGS: AppSettings = {
   refreshInterval: 60,
   floatMode: true,
   darkMode: true,
+  style: 'default',
   viewMode: 'normal',
   fontColor: '#3b82f6',
   pinnedAccountIds: [],
   accountOrder: [],
   autoLaunch: false,
+}
+
+// 各界面风格的强制强调色；default 使用用户自定义 fontColor
+const THEME_ACCENT: Record<string, string | null> = {
+  default: null,
+  brutalist: '#ff2a2a',
+  editorial: '#c75d3b',
+  luxury: '#c9a96a',
+  paper: '#a63a2b',
+  neon: '#00f0ff',
 }
 
 interface SettingsContextType {
@@ -64,6 +75,9 @@ function migrate(data: any): AppSettings {
   merged.pinnedAccountIds = Array.isArray(data.pinnedAccountIds) ? data.pinnedAccountIds : []
   merged.accountOrder = Array.isArray(data.accountOrder) ? data.accountOrder : []
   merged.autoLaunch = data.autoLaunch === true  // 旧数据无此字段，默认 false
+  merged.style = ['default', 'brutalist', 'editorial', 'luxury', 'paper', 'neon'].includes(data.style)
+    ? data.style
+    : 'default'
   // 旧格式 apiKey 单字段迁移
   if (data.apiKey && !merged.accounts.length) {
     merged.accounts = [{
@@ -129,21 +143,31 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [settings])
 
-  // 同步 dark mode
+  // 同步 dark mode（深浅色切换在任意风格下都生效）
   useEffect(() => {
     document.documentElement.classList.toggle('dark', settings.darkMode)
   }, [settings.darkMode])
 
-  // 同步字体颜色到 CSS 变量（同时写 hex 和 RGB 两个变量）
+  // 同步界面风格（data-style 属性驱动 CSS 主题切换）
   useEffect(() => {
-    const hex = settings.fontColor
+    if (settings.style === 'default') {
+      document.documentElement.removeAttribute('data-style')
+    } else {
+      document.documentElement.setAttribute('data-style', settings.style)
+    }
+  }, [settings.style])
+
+  // 同步字体颜色到 CSS 变量（同时写 hex 和 RGB 两个变量）
+  // 各风格强制对应强调色，default 模式使用用户自定义 fontColor
+  useEffect(() => {
+    const hex = THEME_ACCENT[settings.style] ?? settings.fontColor
     document.documentElement.style.setProperty('--accent-color', hex)
     // 将 hex 转为 RGB 分量，供 rgb(var(--accent)) 使用
     const r = parseInt(hex.slice(1, 3), 16)
     const g = parseInt(hex.slice(3, 5), 16)
     const b = parseInt(hex.slice(5, 7), 16)
     document.documentElement.style.setProperty('--accent', `${r} ${g} ${b}`)
-  }, [settings.fontColor])
+  }, [settings.fontColor, settings.style])
 
   // 同步悬浮模式
   useEffect(() => {

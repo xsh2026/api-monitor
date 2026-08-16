@@ -17,6 +17,7 @@ interface BalanceCardProps {
   isPinned?: boolean
   onTogglePin?: () => void
   sessionSpent?: number
+  cumulativeSpent?: number
 }
 
 const currencySymbol: Record<string, string> = {
@@ -24,7 +25,7 @@ const currencySymbol: Record<string, string> = {
   USD: '$',
 }
 
-export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'normal', accountLabel, accountCount = 1, errorMessage, provider = 'deepseek', isPinned, onTogglePin, sessionSpent }: BalanceCardProps) {
+export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'normal', accountLabel, accountCount = 1, errorMessage, provider = 'deepseek', isPinned, onTogglePin, sessionSpent, cumulativeSpent }: BalanceCardProps) {
   const preferReducedMotion = useReducedMotion()
   const symbol = currencySymbol[info.currency] || info.currency + ' '
   const total = parseFloat(info.total_balance) || 0
@@ -188,14 +189,16 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
           </div>
         </div>
 
-        {/* 本次运行消耗 */}
+        {/* 运行消耗统计（本次 + 累计） */}
         {providerMeta?.showBalance !== false && sessionSpent !== undefined && !loading && (
-          <span
-            className="flex-shrink-0 text-[10px] font-medium text-[rgb(var(--text-tertiary))]"
-            title="API Monitor 运行期间消耗"
-          >
-            本次 -¥{sessionSpent.toFixed(2)}
-          </span>
+          <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+            <span className="text-[10px] font-medium text-[rgb(var(--text-tertiary))]" title="本次运行消耗">
+              本次 -¥{(sessionSpent ?? 0).toFixed(2)}
+            </span>
+            <span className="text-[10px] font-medium text-[rgb(var(--text-tertiary))]" title="累计消耗">
+              累计 ¥{(cumulativeSpent ?? 0).toFixed(2)}
+            </span>
+          </div>
         )}
       </div>
 

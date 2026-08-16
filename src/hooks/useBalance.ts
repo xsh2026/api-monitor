@@ -54,10 +54,10 @@ export function useBalance() {
   // ── 消耗统计 ──
   // 历史累计消耗（跨重启，从 localStorage 恢复，本会话内不再变动）
   const [historicalSpent] = useState<Record<string, number>>(() => loadCumulativeSpent())
-  // 本次运行消耗（重启清零，靠余额差计算）
+  // 本次运行消耗（重启清零，靠余额下降累加计算）
   const [sessionSpent, setSessionSpent] = useState<Record<string, number>>({})
-  // 本次运行各账户的基线余额（首次成功查询时记录，充值则重置）
-  const baselineRef = useRef<Record<string, number>>({})
+  // 本次运行各账户上次观察到的余额（余额下降=消耗，余额上升=充值）
+  const prevBalanceRef = useRef<Record<string, number>>({})
 
   // 累计消耗 = 历史累计 + 本次运行
   const cumulativeSpent = useMemo(() => {
@@ -159,17 +159,22 @@ export function useBalance() {
           if ('error' in result) {
             upsert({ ...base, data: null, isAvailable: false, loading: false, error: result.message, lastUpdated: null } as AccountBalance)
           } else {
-            // 余额差法计算本次运行消耗
+            // 余额下降即消耗并累加；余额上升（充值）只更新基准，不清零计数
             const total = (result.balance_infos || []).reduce(
               (s, b) => s + (parseFloat(b.total_balance) || 0), 0
             )
-            const prevBaseline = baselineRef.current[acct.id]
-            // 首次成功记基线；余额增加（充值）则重置基线，避免负消耗
-            if (prevBaseline === undefined || total > prevBaseline) {
-              baselineRef.current[acct.id] = total
+            const prevBalance = prevBalanceRef.current[acct.id]
+            if (prevBalance === undefined) {
+              // 首次成功：建立基准，初始化本次消耗为 0（保证卡片上显示）
+              setSessionSpent(prev => ({ ...prev, [acct.id]: prev[acct.id] || 0 }))
+            } else if (total < prevBalance) {
+              // 余额下降：累加本次消耗
+              setSessionSpent(prev => ({
+                ...prev,
+                [acct.id]: (prev[acct.id] || 0) + (prevBalance - total),
+              }))
             }
-            const spent = Math.max(0, baselineRef.current[acct.id] - total)
-            setSessionSpent(prev => ({ ...prev, [acct.id]: spent }))
+            prevBalanceRef.current[acct.id] = total
 
             upsert({
               ...base,
