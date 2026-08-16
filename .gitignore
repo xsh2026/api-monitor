@@ -3,5 +3,6 @@ dist/
 dist-electron/
 release/
 *.log
+*.tsbuildinfo
 .env
 .env.local

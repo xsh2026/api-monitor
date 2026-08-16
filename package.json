@@ -1,6 +1,6 @@
 {
   "name": "api-monitor",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "多厂商 API 余额与用量监控桌面悬浮窗 - 支持 DeepSeek / StepFun / 云知声 / MiniMax",
   "author": "xsh2026",
   "main": "dist-electron/main.js",

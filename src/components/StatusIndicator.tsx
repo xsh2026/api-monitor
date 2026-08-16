@@ -5,11 +5,10 @@ interface StatusIndicatorProps {
   error: string | null
   lastUpdated: Date | null
   onRefresh: () => void
-  retryCount?: number
   viewMode?: string
 }
 
-export function StatusIndicator({ loading, error, lastUpdated, onRefresh, retryCount = 0, viewMode = 'normal' }: StatusIndicatorProps) {
+export function StatusIndicator({ loading, error, lastUpdated, onRefresh, viewMode = 'normal' }: StatusIndicatorProps) {
   const preferReducedMotion = useReducedMotion()
   const isMinimal = viewMode === 'minimal'
   const isCompact = viewMode === 'compact'
@@ -27,7 +26,7 @@ export function StatusIndicator({ loading, error, lastUpdated, onRefresh, retryC
           />
           {loading ? (
             <span className="text-[10px] text-blue-400/70 truncate">
-              {retryCount > 0 ? `重试${retryCount}/3` : '刷新中'}
+              刷新中
             </span>
           ) : error ? (
             <span className="text-[10px] text-red-400/70 truncate max-w-[160px]" title={error}>
@@ -90,7 +89,7 @@ export function StatusIndicator({ loading, error, lastUpdated, onRefresh, retryC
               <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="31.4 31.4" />
               </svg>
-              {retryCount > 0 ? `重试中 (${retryCount}/3)...` : '刷新中...'}
+              刷新中...
             </span>
           ) : error ? (
             <span className="text-red-500">{error}</span>

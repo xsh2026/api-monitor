@@ -46,7 +46,7 @@ export interface ProviderMeta {
 }
 
 export const PROVIDERS: Record<ProviderId, ProviderMeta> = {
-  deepseek: { id: 'deepseek', name: 'DeepSeek', color: '#3b82f6', hasUsage: true, showBalance: true, accountUrl: 'https://platform.deepseek.com/usage' },
+  deepseek: { id: 'deepseek', name: 'DeepSeek', color: '#3b82f6', hasUsage: false, showBalance: true, accountUrl: 'https://platform.deepseek.com/usage' },
   stepfun: { id: 'stepfun', name: 'StepFun', color: '#8b5cf6', hasUsage: false, showBalance: false, balanceNote: 'Step Plan 订阅制，余额请前往平台查看', accountUrl: 'https://platform.stepfun.com/' },
   unisound: { id: 'unisound', name: '云知声', color: '#06b6d4', hasUsage: false, showBalance: false, balanceNote: 'MaaS 平台不支持 API 查余额，请前往 maas.unisound.com 查看', accountUrl: 'https://maas.unisound.com/' },
   minimax: { id: 'minimax', name: 'MiniMax', color: '#f97316', hasUsage: false, showBalance: false, balanceNote: 'Coding Plan 不支持 API 查余额，请前往平台查看', accountUrl: 'https://platform.minimax.io/' },

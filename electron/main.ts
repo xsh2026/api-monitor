@@ -188,12 +188,13 @@ ipcMain.handle('quit-app', () => {
 
 // 获取自启动命令行参数
 // 打包后 exe 自带路径信息，无需参数；dev 模式必须传入项目根目录的绝对路径。
-// 不能使用 process.argv.slice(1)（dev 模式下为相对路径 ['']），
-// 因为 Windows 从注册表启动进程时 CWD 固定为 C:\WINDOWS\system32，
-// 相对路径会解析失败，导致 "Cannot find module 'C:\WINDOWS\system32'" 错误。
+// 不能用 process.cwd()：从注册表自启动时 CWD 固定为 C:\WINDOWS\system32，
+// 会导致 whenReady 里用错误路径重新注册登录项，下次开机报
+// "Cannot find module 'C:\WINDOWS\system32'"。
+// app.getAppPath() 始终指向 package.json 所在目录，与 CWD 无关。
 function getAutoLaunchArgs(): string[] {
   if (app.isPackaged) return []
-  return [process.cwd()]
+  return [app.getAppPath()]
 }
 ipcMain.handle('set-auto-launch', (_event, enable: boolean) => {
   app.setLoginItemSettings({

@@ -16,6 +16,7 @@ interface BalanceCardProps {
   provider?: ProviderId
   isPinned?: boolean
   onTogglePin?: () => void
+  sessionSpent?: number
 }
 
 const currencySymbol: Record<string, string> = {
@@ -23,7 +24,7 @@ const currencySymbol: Record<string, string> = {
   USD: '$',
 }
 
-export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'normal', accountLabel, accountCount = 1, errorMessage, provider = 'deepseek', isPinned, onTogglePin }: BalanceCardProps) {
+export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'normal', accountLabel, accountCount = 1, errorMessage, provider = 'deepseek', isPinned, onTogglePin, sessionSpent }: BalanceCardProps) {
   const preferReducedMotion = useReducedMotion()
   const symbol = currencySymbol[info.currency] || info.currency + ' '
   const total = parseFloat(info.total_balance) || 0
@@ -186,6 +187,16 @@ export function BalanceCard({ info, isAvailable, loading, index, viewMode = 'nor
             </div>
           </div>
         </div>
+
+        {/* 本次运行消耗 */}
+        {providerMeta?.showBalance !== false && sessionSpent !== undefined && !loading && (
+          <span
+            className="flex-shrink-0 text-[10px] font-medium text-[rgb(var(--text-tertiary))]"
+            title="API Monitor 运行期间消耗"
+          >
+            本次 -¥{sessionSpent.toFixed(2)}
+          </span>
+        )}
       </div>
 
       {/* Balance display */}

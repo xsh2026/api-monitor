@@ -14,7 +14,7 @@ import { Pin } from 'lucide-react'
 
 export default function App() {
   const { settings, togglePin, isPinned, reorderAccounts } = useSettings()
-  const { accountBalances, loading, error, lastUpdated, fetchBalance, retryCount } = useBalance()
+  const { accountBalances, loading, error, lastUpdated, fetchBalance, sessionSpent, sessionTotalSpent, cumulativeTotalSpent } = useBalance()
   const usage = useUsage()
   const preferReducedMotion = useReducedMotion()
   const [showSettings, setShowSettings] = useState(false)
@@ -91,7 +91,6 @@ export default function App() {
         error={error}
         lastUpdated={lastUpdated}
         onRefresh={fetchBalance}
-        retryCount={retryCount}
         viewMode={inSidePanel ? 'compact' : viewMode}
       />
 
@@ -152,6 +151,7 @@ export default function App() {
                           info={info}
                           isAvailable={acct.isAvailable}
                           loading={acct.loading}
+                          sessionSpent={sessionSpent[acct.accountId]}
                           index={i + j}
                           viewMode={inSidePanel ? 'compact' : viewMode}
                           accountLabel={acct.accountLabel}
@@ -200,6 +200,7 @@ export default function App() {
                           info={info}
                           isAvailable={acct.isAvailable}
                           loading={acct.loading}
+                          sessionSpent={sessionSpent[acct.accountId]}
                           index={i + j}
                           viewMode={viewMode}
                           accountLabel={acct.accountLabel}
@@ -270,12 +271,14 @@ export default function App() {
     settings.accounts.length > 0 && (
       <div className="px-1 py-0.5 flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-600 border-t border-gray-200/30 dark:border-white/[0.03]">
         <span>{lastUpdated ? `更新 ${formatTime(lastUpdated)}` : ''}</span>
+        <span className="text-emerald-500/80 font-medium">本次 ¥{sessionTotalSpent.toFixed(2)}</span>
         <span>{settings.refreshInterval}s</span>
       </div>
     )
   ) : (
     <div className="px-4 py-2 border-t border-gray-200/50 dark:border-white/[0.05] flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-600">
-      <span>API Monitor v1.8 - {settings.accounts.length} 个账户</span>
+      <span>API Monitor v1.9 - {settings.accounts.length} 个账户</span>
+      <span className="text-emerald-500/80 font-medium">本次运行消耗 ¥{sessionTotalSpent.toFixed(2)} · 累计 ¥{cumulativeTotalSpent.toFixed(2)}</span>
       <span>{settings.accounts.length > 0 ? `自动刷新: ${settings.refreshInterval}s` : '未配置'}</span>
     </div>
   )
